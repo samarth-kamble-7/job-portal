@@ -18,6 +18,28 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final com.example.job_portal.service.OtpService otpService;
+
+    @PostMapping("/otp/send")
+    public ResponseEntity<ApiResponse<Void>> sendOtp(
+            @Valid @RequestBody SendOtpRequest request) {
+        otpService.sendEmailVerificationOtp(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.message("Verification code sent to your email"));
+    }
+
+    @PostMapping("/otp/verify")
+    public ResponseEntity<ApiResponse<Void>> verifyOtp(
+            @Valid @RequestBody VerifyOtpRequest request) {
+        otpService.verifyEmailOtp(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok(ApiResponse.message("Email verified successfully"));
+    }
+
+    @PostMapping("/otp/resend")
+    public ResponseEntity<ApiResponse<Void>> resendOtp(
+            @Valid @RequestBody SendOtpRequest request) {
+        otpService.resendOtp(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.message("New verification code sent to your email"));
+    }
 
     @PostMapping("/register/candidate")
     public ResponseEntity<ApiResponse<AuthResponse>> registerCandidate(

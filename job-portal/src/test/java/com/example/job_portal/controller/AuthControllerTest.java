@@ -35,6 +35,9 @@ class AuthControllerTest {
     @Mock
     private AuthService authService;
 
+    @Mock
+    private com.example.job_portal.service.OtpService otpService;
+
     @InjectMocks
     private AuthController authController;
 
@@ -129,5 +132,36 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.user.role", is("EMPLOYER_ADMIN")))
                 .andExpect(jsonPath("$.data.user.company.name", is("Acme Corporation")));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/auth/otp/send - should return 200 with success message")
+    void shouldSendOtp() throws Exception {
+        SendOtpRequest request = SendOtpRequest.builder()
+                .email("alex@example.com")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/otp/send")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.message", is("Verification code sent to your email")));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/auth/otp/verify - should return 200 with success message")
+    void shouldVerifyOtp() throws Exception {
+        VerifyOtpRequest request = VerifyOtpRequest.builder()
+                .email("alex@example.com")
+                .otp("123456")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/otp/verify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.message", is("Email verified successfully")));
     }
 }
